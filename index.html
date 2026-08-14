@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>芋泥</title>
+
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+      min-height:100vh;
+      color:#fff;
+      background:#0b0716;
+      overflow-x:hidden;
+      position:relative;
+    }
+
+    /* 背景 */
+    .bg{
+      position:fixed;
+      inset:0;
+      background:url('https://images.unsplash.com/photo-1522383225653-ed111181a951?q=80&w=1920&auto=format&fit=crop') center/cover no-repeat;
+      filter:brightness(.45) saturate(1.15);
+      transform:scale(1.05);
+      z-index:-3;
+    }
+
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:radial-gradient(circle at top,#9b5cff55 0%,#12091fbb 60%,#09060f 100%);
+      z-index:-2;
+    }
+
+    body::before{
+      content:'';
+      position:fixed;
+      inset:0;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255,120,200,.12), transparent 28%),
+        radial-gradient(circle at 85% 10%, rgba(155,92,255,.14), transparent 24%),
+        radial-gradient(circle at 50% 100%, rgba(120,90,255,.16), transparent 36%);
+      pointer-events:none;
+      z-index:-1;
+    }
+
+    /* 樱花 */
+    .petal{
+      position:fixed;
+      top:-10%;
+      width:14px;
+      height:14px;
+      background:rgba(255,192,203,.85);
+      border-radius:70% 30% 70% 30%;
+      animation:fall linear infinite;
+      box-shadow:0 0 10px rgba(255,182,193,.6);
+      z-index:-1;
+    }
+
+    @keyframes fall{
+      0%{transform:translateY(-10vh) translateX(0) rotate(0deg);opacity:0;}
+      10%{opacity:1;}
+      100%{transform:translateY(110vh) translateX(80px) rotate(360deg);opacity:0;}
+    }
+
+    .container{
+      width:100%;
+      max-width:1120px;
+      margin:0 auto;
+      padding:24px 20px 80px;
+    }
+
+    /* 顶部导航 */
+    .topbar{
+      position:sticky;
+      top:18px;
+      z-index:20;
+      margin-bottom:24px;
+    }
+
+    .nav{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:14px 22px;
+      border-radius:22px;
+      background:rgba(20,16,35,.68);
+      border:1px solid rgba(255,255,255,.08);
+      backdrop-filter:blur(18px);
+      box-shadow:0 10px 26px rgba(0,0,0,.28);
+    }
+
+    .nav-logo{
+      font-size:22px;
+      font-weight:700;
+      letter-spacing:.5px;
+    }
+
+    .nav-links{
+      display:flex;
+      gap:18px;
+    }
+
+    .nav-links a{
+      color:#efe6ff;
+      text-decoration:none;
+      font-size:14px;
+      padding:8px 14px;
+      border-radius:999px;
+      transition:.25s ease;
+    }
+
+    .nav-links a:hover{
+      background:rgba(255,255,255,.08);
+      color:#fff;
+    }
+
+    /* 卡片 */
+    .card{
+      position:relative;
+      overflow:hidden;
+      background:rgba(14,10,24,.72);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:30px;
+      padding:30px;
+      backdrop-filter:blur(22px);
+      box-shadow:
+        0 20px 60px rgba(0,0,0,.45),
+        inset 0 1px 0 rgba(255,255,255,.04);
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(135deg, rgba(255,255,255,.05), transparent 40%);
+      pointer-events:none;
+    }
+
+    /* 两栏 */
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.05fr 1fr;
+      gap:26px;
+      margin-bottom:26px;
+    }
+
+    @media (max-width:860px){
+      .hero-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    /* 左侧 */
+    .profile{
+      display:flex;
+      gap:18px;
+      align-items:center;
+      margin-bottom:22px;
+    }
+
+    .avatar{
+      width:100px;
+      height:100px;
+      border-radius:50%;
+      object-fit:cover;
+      border:3px solid rgba(255,255,255,.82);
+      box-shadow:0 0 24px rgba(191,128,255,.55);
+    }
+
+    .name{
+      font-size:30px;
+      font-weight:700;
+      margin-bottom:6px;
+    }
+
+    .sub{
+      color:#d8c8ff;
+      font-size:15px;
+    }
+
+    .desc{
+      line-height:1.9;
+      color:#f3edff;
+      opacity:.92;
+      margin-bottom:22px;
+      font-size:15px;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
+    }
+
+    .stat{
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      padding:16px 10px;
+      text-align:center;
+    }
+
+    .stat .icon{
+      font-size:22px;
+      margin-bottom:8px;
+    }
+
+    .stat .num{
+      font-size:15px;
+      font-weight:700;
+    }
+
+    .stat .txt{
+      font-size:12px;
+      color:#d8c8ff;
+      margin-top:4px;
+    }
+
+    /* 播放器 */
+    .player-top{
+      display:flex;
+      align-items:center;
+      gap:22px;
+      margin-bottom:20px;
+    }
+
+    #disc{
+      width:160px;
+      height:160px;
+      border-radius:50%;
+      position:relative;
+      background:
+        radial-gradient(circle at center,#111 0 16px,#222 16px 28px,#000 28px 100%);
+      box-shadow:
+        0 18px 38px rgba(0,0,0,.55),
+        inset 0 0 0 2px rgba(255,255,255,.03);
+      animation:spin 8s linear infinite;
+      animation-play-state:paused;
+      transition:transform .35s ease;
+      flex-shrink:0;
+    }
+
+    #disc:hover{
+      transform:scale(1.03);
+    }
+
+    #disc img{
+      width:96px;
+      height:96px;
+      border-radius:50%;
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:translate(-50%,-50%);
+      object-fit:cover;
+      border:3px solid rgba(255,255,255,.15);
+    }
+
+    #disc::after{
+      content:"";
+      width:14px;
+      height:14px;
+      border-radius:50%;
+      background:#111;
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:translate(-50%,-50%);
+      border:2px solid #444;
+    }
+
+    @keyframes spin{
+      from{transform:rotate(0deg);}
+      to{transform:rotate(360deg);}
+    }
+
+    .song-title{
+      font-size:30px;
+      font-weight:700;
+      margin-bottom:6px;
+      letter-spacing:.5px;
+    }
+
+    .artist{
+      color:#e8d7ff;
+      margin-bottom:14px;
+      font-size:15px;
+    }
+
+    .tag-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+
+    .tag{
+      padding:6px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+      color:#ffd3e3;
+      font-size:12px;
+      border:1px solid rgba(255,255,255,.06);
+    }
+
+    .quote{
+      font-size:13px;
+      color:#cdbdff;
+      line-height:1.8;
+    }
+
+    audio{display:none;}
+
+    #progress{
+      width:100%;
+      height:5px;
+      appearance:none;
+      background:rgba(255,255,255,.12);
+      border-radius:999px;
+      margin:12px 0;
+    }
+
+    #progress::-webkit-slider-thumb{
+      appearance:none;
+      width:14px;
+      height:14px;
+      border-radius:50%;
+      background:#fff;
+      border:3px solid #ff6b9d;
+      box-shadow:0 0 14px rgba(255,107,157,.6);
+      cursor:pointer;
+    }
+
+    .time{
+      display:flex;
+      justify-content:space-between;
+      font-size:12px;
+      color:#d8c8ff;
+      margin-bottom:18px;
+    }
+
+    .controls{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:28px;
+      margin-bottom:18px;
+    }
+
+    .ctrl{
+      background:none;
+      border:none;
+      color:white;
+      font-size:26px;
+      cursor:pointer;
+      transition:.2s;
+    }
+
+    .ctrl:hover{
+      transform:scale(1.08);
+    }
+
+    #playBtn{
+      width:74px;
+      height:74px;
+      border-radius:50%;
+      border:none;
+      background:#ff6b9d;
+      color:white;
+      font-size:30px;
+      cursor:pointer;
+      box-shadow:0 16px 36px rgba(255,107,157,.45);
+      transition:.25s ease;
+    }
+
+    #playBtn:hover{
+      transform:scale(1.08);
+      box-shadow:0 20px 44px rgba(255,107,157,.58);
+    }
+
+    .lyrics{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:22px;
+      padding:18px;
+      text-align:center;
+      color:#e9ddff;
+      line-height:2;
+      font-size:14px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+    }
+
+    .lyrics .small{
+      font-size:12px;
+      color:#ff9ac0;
+      margin-bottom:8px;
+      letter-spacing:1px;
+    }
+
+    .lyrics .main{
+      color:#fff;
+      font-size:16px;
+      font-weight:600;
+    }
+
+    /* 歌单 */
+    .section{
+      background:rgba(18,14,32,.62);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:28px;
+      padding:26px 22px;
+      backdrop-filter:blur(18px);
+      box-shadow:0 20px 60px rgba(0,0,0,.35);
+    }
+
+    .section h2{
+      font-size:24px;
+      margin-bottom:18px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .playlist{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+      gap:14px;
+      max-height:820px;
+      overflow:auto;
+      padding-right:6px;
+    }
+
+    .playlist::-webkit-scrollbar{
+      width:8px;
+    }
+
+    .playlist::-webkit-scrollbar-thumb{
+      background:rgba(191,128,255,.45);
+      border-radius:999px;
+    }
+
+    .song{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:12px 14px;
+      border-radius:16px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.06);
+      transition:all .2s ease;
+      font-size:14px;
+    }
+
+    .song::before{
+      content:"♪";
+      color:#ff9ac0;
+      font-size:14px;
+    }
+
+    .song:hover{
+      transform:translateY(-3px);
+      background:rgba(191,128,255,.16);
+      box-shadow:0 10px 24px rgba(155,92,255,.18);
+    }
+
+    /* 抖音按钮 */
+    .douyin{
+      display:block;
+      width:100%;
+      text-align:center;
+      text-decoration:none;
+      color:#fff;
+      margin-top:22px;
+      padding:15px 18px;
+      border-radius:18px;
+      background:linear-gradient(135deg,#ff6b9d,#9b5cff);
+      font-weight:700;
+      box-shadow:0 12px 28px rgba(155,92,255,.35);
+      transition:.25s ease;
+    }
+
+    .douyin:hover{
+      transform:translateY(-3px) scale(1.01);
+    }
+
+    footer{
+      text-align:center;
+      margin-top:28px;
+      color:#cdbdff;
+      font-size:13px;
+      opacity:.82;
+    }
+
+    @media (max-width:560px){
+      .container{padding:18px 14px 64px;}
+      .card{padding:22px;}
+      .profile{align-items:flex-start;}
+      .player-top{flex-direction:column;align-items:flex-start;}
+      #disc{width:140px;height:140px;}
+      .song-title{font-size:26px;}
+      .name{font-size:26px;}
+      .stats{grid-template-columns:1fr 1fr 1fr;}
+    }
+    /* ===== 歌词：手动滚动，不自动跟随，不描点 ===== */
+    .lyrics-time-axis{
+      margin-top:14px;
+      height:190px;
+      border-radius:18px;
+      background:rgba(255,255,255,.035);
+      border:1px solid rgba(255,255,255,.06);
+      overflow-y:auto;
+      overflow-x:hidden;
+      scrollbar-width:thin;
+      scrollbar-color:rgba(191,128,255,.55) rgba(255,255,255,.04);
+    }
+
+    .lyrics-time-axis::-webkit-scrollbar{
+      width:8px;
+    }
+
+    .lyrics-time-axis::-webkit-scrollbar-track{
+      background:rgba(255,255,255,.04);
+      border-radius:999px;
+    }
+
+    .lyrics-time-axis::-webkit-scrollbar-thumb{
+      background:rgba(191,128,255,.55);
+      border-radius:999px;
+    }
+
+    .lyrics-time-list{
+      width:100%;
+      padding:18px 18px 24px;
+      text-align:center;
+    }
+
+    .lyrics-time-line{
+      min-height:38px;
+      line-height:38px;
+      color:rgba(233,221,255,.78);
+      font-size:14px;
+      white-space:normal;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg"></div>
+  <div class="overlay"></div>
+
+  <!-- 樱花 -->
+  <div class="petal" style="left:5%; animation-duration:12s;"></div>
+  <div class="petal" style="left:18%; animation-duration:15s; animation-delay:2s;"></div>
+  <div class="petal" style="left:30%; animation-duration:11s; animation-delay:4s;"></div>
+  <div class="petal" style="left:44%; animation-duration:14s; animation-delay:1s;"></div>
+  <div class="petal" style="left:58%; animation-duration:13s; animation-delay:5s;"></div>
+  <div class="petal" style="left:72%; animation-duration:16s; animation-delay:3s;"></div>
+  <div class="petal" style="left:84%; animation-duration:12s; animation-delay:6s;"></div>
+  <div class="petal" style="left:94%; animation-duration:15s; animation-delay:1.5s;"></div>
+
+  <div class="container">
+
+    <!-- 顶部导航 -->
+    <div class="topbar">
+      <div class="nav">
+        <div class="nav-logo">🎵 芋泥</div>
+        <div class="nav-links">
+          <a href="#home">首页</a>
+          <a href="#playlist">歌单</a>
+          <a href="#about">关于我</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 两栏 -->
+    <div class="hero-grid" id="home">
+
+      <!-- 左侧 -->
+      <div class="card">
+        <div class="profile">
+          <img src="avatar.jpg" alt="头像" class="avatar">
+          <div>
+            <div class="name">芋泥</div>
+            <div class="sub">爱听歌的人 🌸</div>
+          </div>
+        </div>
+
+        <div class="desc">
+          音乐是生活的解药，每一首歌都藏着一个故事。
+          欢迎来到我的小宇宙 ✨
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="icon">🎧</div>
+            <div class="num">200+</div>
+            <div class="txt">收藏音乐</div>
+          </div>
+          <div class="stat">
+            <div class="icon">💜</div>
+            <div class="num">热爱</div>
+            <div class="txt">喜欢听歌</div>
+          </div>
+          <div class="stat">
+            <div class="icon">🌙</div>
+            <div class="num">治愈</div>
+            <div class="txt">陪伴你我</div>
+          </div>
+        </div>
+
+        <a class="douyin" href="https://v.douyin.com/88d0Uiw-0XU/" target="_blank">
+          🎵 点击进入我的抖音主页
+        </a>
+      </div>
+
+      <!-- 右侧播放器 -->
+      <div class="card">
+
+        <div class="player-top">
+
+          <div id="disc">
+            <img src="cover.jpg" alt="封面">
+          </div>
+
+          <div style="flex:1;text-align:left;">
+            <div class="song-title">下完那场雨</div>
+            <div class="artist">芋泥 · 私藏歌单</div>
+
+            <div class="tag-row">
+              <span class="tag">❤ 已喜欢</span>
+              <span class="tag">🎧 单曲循环</span>
+            </div>
+
+            <div class="quote">
+              “雨落在窗外，旋律落在心里。”
+            </div>
+          </div>
+
+        </div>
+
+        <audio id="player" src="music.mp3" loop autoplay></audio>
+
+        <input id="progress" type="range" value="0" min="0" max="100">
+
+        <div class="time">
+          <span id="currentTime">00:00</span>
+          <span id="duration">00:00</span>
+        </div>
+
+        <div class="controls">
+          <button class="ctrl" onclick="rewind()">⏮</button>
+          <button id="playBtn" onclick="togglePlay()">▶</button>
+          <button class="ctrl" onclick="forward()">⏭</button>
+        </div>
+
+     
+        <!-- ===== 新增：连续滚动歌词，不与歌曲时间轴同步 ===== -->
+        <div class="lyrics-time-axis">
+          <div id="lyricsTimeList" class="lyrics-time-list">
+            <div class="lyrics-time-line">念旧的皮箱装着</div>
+            <div class="lyrics-time-line">爱没放完的烟火</div>
+            <div class="lyrics-time-line">我提着寂寞撑伞穿过夜色</div>
+            <div class="lyrics-time-line">悲伤湿透了领口</div>
+            <div class="lyrics-time-line">别说破且当作梅雨曾来过</div>
+            <div class="lyrics-time-line">雨滴下鼓槌落</div>
+            <div class="lyrics-time-line">伞下路退却不能</div>
+            <div class="lyrics-time-line">衣襟还残留那句手写的珍重</div>
+            <div class="lyrics-time-line">那年长亭你的背影亮了</div>
+            <div class="lyrics-time-line">雨中我燃一束挽歌</div>
+            <div class="lyrics-time-line">我在等你，等下完这场雨</div>
+            <div class="lyrics-time-line">满城涓涤，净此生的别离</div>
+            <div class="lyrics-time-line">心太入戏，梦流转四季只是回忆</div>
+            <div class="lyrics-time-line">手中焰火向谁泣</div>
+            <div class="lyrics-time-line">如果可以，别下完这场雨</div>
+            <div class="lyrics-time-line">放慢朝夕，拾与你的点滴</div>
+            <div class="lyrics-time-line">怕来不及，回眸再重温此刻如往昔</div>
+            <div class="lyrics-time-line">伞外朦胧可是你</div>
+            <div class="lyrics-time-line">那年我烟花为序</div>
+            <div class="lyrics-time-line">光芒逆雨而上画下故事终句</div>
+            <div class="lyrics-time-line">守一纸立秋的期许说好等你</div>
+            <div class="lyrics-time-line">远去的时光列车</div>
+            <div class="lyrics-time-line">满载我今生几多孤寂</div>
+            <div class="lyrics-time-line">夕阳西下故人长城外</div>
+            <div class="lyrics-time-line">顷刻间滂沱大雨浇不灭余念仍在</div>
+            <div class="lyrics-time-line">帷幕落秋雨霖伞下人哼泣</div>
+            <div class="lyrics-time-line">最后再重温那首与你送别的旋律</div>
+            <div class="lyrics-time-line">我在等你，等下完这场雨</div>
+            <div class="lyrics-time-line">满城涓涤，净此生的别离</div>
+            <div class="lyrics-time-line">心太入戏，梦流转四季只是回忆</div>
+            <div class="lyrics-time-line">手中焰火向谁泣</div>
+            <div class="lyrics-time-line">如果可以，别下完这场雨</div>
+            <div class="lyrics-time-line">放慢朝夕，拾与你的点滴</div>
+            <div class="lyrics-time-line">怕来不及，回眸再重温此刻如往昔</div>
+            <div class="lyrics-time-line">伞外朦胧可是你</div>
+            <div class="lyrics-time-line">长亭外，古道边</div>
+            <div class="lyrics-time-line">芳草碧连天</div>
+            <div class="lyrics-time-line">晚风拂柳笛声残</div>
+            <div class="lyrics-time-line">夕阳送别山外山</div>
+            <div class="lyrics-time-line">我在等你，等下完这场雨</div>
+            <div class="lyrics-time-line">满城涓涤，净此生的别离</div>
+            <div class="lyrics-time-line">怕来不及，回眸再重温此刻如往昔</div>
+            <div class="lyrics-time-line">伞外朦胧可是你</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 歌单 -->
+    <div class="section" id="playlist">
+      <h2>🎼 我的歌单</h2>
+
+     <div class="playlist">
+
+  <div class="song">瞬</div>
+  <div class="song">紫</div>
+  <div class="song">蓝</div>
+  <div class="song">笼</div>
+  <div class="song">骗</div>
+  <div class="song">光</div>
+  <div class="song">枫</div>
+  <div class="song">问</div>
+  <div class="song">你</div>
+  <div class="song">当</div>
+
+  <div class="song">空心</div>
+  <div class="song">坠落</div>
+  <div class="song">空空</div>
+  <div class="song">小宇</div>
+  <div class="song">原谅</div>
+  <div class="song">房间</div>
+  <div class="song">妥协</div>
+  <div class="song">如愿</div>
+  <div class="song">舍得</div>
+  <div class="song">过客</div>
+  <div class="song">心墙</div>
+  <div class="song">年轮</div>
+  <div class="song">遇见</div>
+  <div class="song">搁浅</div>
+  <div class="song">指纹</div>
+  <div class="song">雨爱</div>
+  <div class="song">后来</div>
+  <div class="song">过敏</div>
+  <div class="song">浪费</div>
+  <div class="song">画心</div>
+  <div class="song">泡沫</div>
+  <div class="song">戒烟</div>
+  <div class="song">勇气</div>
+  <div class="song">走马</div>
+  <div class="song">晚婚</div>
+  <div class="song">爱错</div>
+  <div class="song">太多</div>
+  <div class="song">小半</div>
+  <div class="song">像鱼</div>
+  <div class="song">嘉宾</div>
+  <div class="song">仗着</div>
+  <div class="song">大鱼</div>
+  <div class="song">命运</div>
+  <div class="song">恋人</div>
+  <div class="song">保留</div>
+  <div class="song">晴天</div>
+  <div class="song">稻香</div>
+  <div class="song">花海</div>
+  <div class="song">退后</div>
+  <div class="song">体面</div>
+  <div class="song">美梦</div>
+  <div class="song">I DO</div>
+  <div class="song">黄昏</div>
+  <div class="song">最爱</div>
+  <div class="song">江南</div>
+  <div class="song">童年</div>
+  <div class="song">解药</div>
+  <div class="song">青柠</div>
+  <div class="song">撕夜</div>
+  <div class="song">挚友</div>
+  <div class="song">致你</div>
+
+  <div class="song">浪漫爱</div>
+  <div class="song">我不配</div>
+  <div class="song">简单爱</div>
+  <div class="song">龙卷风</div>
+  <div class="song">冷雨夜</div>
+  <div class="song">东风破</div>
+  <div class="song">发如雪</div>
+  <div class="song">海芋恋</div>
+  <div class="song">说爱你</div>
+  <div class="song">说说话</div>
+  <div class="song">有没有</div>
+  <div class="song">我走后</div>
+  <div class="song">野心家</div>
+  <div class="song">我太笨</div>
+  <div class="song">我爱他</div>
+  <div class="song">他不懂</div>
+  <div class="song">七月上</div>
+  <div class="song">带我走</div>
+  <div class="song">水星记</div>
+  <div class="song">错的人</div>
+  <div class="song">想自由</div>
+  <div class="song">云压雨</div>
+  <div class="song">太委屈</div>
+  <div class="song">都不懂</div>
+  <div class="song">醉清风</div>
+  <div class="song">童话镇</div>
+  <div class="song">艾蜜莉</div>
+  <div class="song">喜欢你</div>
+  <div class="song">春风谣</div>
+  <div class="song">爱转角</div>
+  <div class="song">天黑黑</div>
+  <div class="song">半点心</div>
+  <div class="song">胡广生</div>
+  <div class="song">爱太痛</div>
+  <div class="song">半壶纱</div>
+
+  <div class="song">小雨天气</div>
+  <div class="song">就忘了吧</div>
+  <div class="song">危险派对</div>
+  <div class="song">心如止水</div>
+  <div class="song">词不达意</div>
+  <div class="song">行走的鱼</div>
+  <div class="song">最后一页</div>
+  <div class="song">岁月神偷</div>
+  <div class="song">爱的魔法</div>
+  <div class="song">你啊你啊</div>
+  <div class="song">像风一样</div>
+  <div class="song">夜夜夜夜</div>
+  <div class="song">火柴天堂</div>
+  <div class="song">夏天的风</div>
+  <div class="song">浪人琵琶</div>
+  <div class="song">你不明白</div>
+  <div class="song">一路向北</div>
+  <div class="song">花的嫁纱</div>
+  <div class="song">黑色毛衣</div>
+  <div class="song">红尘客栈</div>
+  <div class="song">我怀念的</div>
+  <div class="song">棠梨煎雪</div>
+  <div class="song">天若有情</div>
+  <div class="song">爱的天国</div>
+  <div class="song">普通朋友</div>
+  <div class="song">知否知否</div>
+  <div class="song">你要的爱</div>
+  <div class="song">如果可以</div>
+  <div class="song">来日方长</div>
+  <div class="song">云烟成雨</div>
+  <div class="song">说散就散</div>
+  <div class="song">第三人称</div>
+  <div class="song">风吹麦浪</div>
+  <div class="song">天空之外</div>
+  <div class="song">呼吸决定</div>
+  <div class="song">类似爱情</div>
+  <div class="song">时间煮雨</div>
+  <div class="song">说了再见</div>
+  <div class="song">路过人间</div>
+  <div class="song">咖喱咖喱</div>
+  <div class="song">鱼的记忆</div>
+  <div class="song">断了的弦</div>
+  <div class="song">自娱自乐</div>
+  <div class="song">肆无忌惮</div>
+  <div class="song">好心分手</div>
+  <div class="song">忽然之间</div>
+  <div class="song">我爱的人</div>
+  <div class="song">一生守候</div>
+  <div class="song">等你下课</div>
+  <div class="song">亲密爱人</div>
+  <div class="song">张三的歌</div>
+  <div class="song">爱很简单</div>
+  <div class="song">我的美丽</div>
+  <div class="song">理想三旬</div>
+  <div class="song">我们的歌</div>
+  <div class="song">爱不单行</div>
+  <div class="song">阴天快乐</div>
+  <div class="song">需要人陪</div>
+  <div class="song">落叶归根</div>
+  <div class="song">心如刀割</div>
+  <div class="song">海阔天空</div>
+  <div class="song">好想好想</div>
+  <div class="song">眼泪成诗</div>
+  <div class="song">六月的雨</div>
+  <div class="song">方圆几里</div>
+  <div class="song">为你写诗</div>
+  <div class="song">曾经你说</div>
+  <div class="song">同桌的你</div>
+
+  <div class="song">想念拟人化</div>
+  <div class="song">旅行中忘记</div>
+  <div class="song">一样的月光</div>
+  <div class="song">易燃易爆炸</div>
+  <div class="song">拿走了什么</div>
+  <div class="song">少一点天分</div>
+  <div class="song">陪你去流浪</div>
+  <div class="song">如果爱忘了</div>
+  <div class="song">怎么唱情歌</div>
+  <div class="song">有一种悲伤</div>
+  <div class="song">我是一只鱼</div>
+  <div class="song">最初的记忆</div>
+  <div class="song">想你时风起</div>
+  <div class="song">心愿便利贴</div>
+  <div class="song">至少还有你</div>
+  <div class="song">哪里都是你</div>
+  <div class="song">被驯服的象</div>
+  <div class="song">最美的期待</div>
+  <div class="song">冬天的秘密</div>
+  <div class="song">还是会想你</div>
+  <div class="song">旅行的意义</div>
+  <div class="song">别问很可怕</div>
+  <div class="song">突然想起你</div>
+  <div class="song">雨下一整晚</div>
+  <div class="song">会呼吸的痛</div>
+  <div class="song">红色高跟鞋</div>
+  <div class="song">反方向的钟</div>
+  <div class="song">一直很安静</div>
+  <div class="song">把耳朵叫醒</div>
+  <div class="song">握不住的他</div>
+  <div class="song">若月亮没来</div>
+  <div class="song">我的歌声里</div>
+  <div class="song">别找我麻烦</div>
+  <div class="song">走在冷风中</div>
+  <div class="song">你给我听好</div>
+  <div class="song">有你的快乐</div>
+  <div class="song">如果没有你</div>
+  <div class="song">不就是落单</div>
+  <div class="song">月半小夜曲</div>
+  <div class="song">我是认真的</div>
+  <div class="song">如果有来生</div>
+  <div class="song">奇妙能力歌</div>
+  <div class="song">会开花的云</div>
+  <div class="song">踮起脚尖爱</div>
+  <div class="song">爱要坦荡荡</div>
+  <div class="song">寂寞的季节</div>
+
+  <div class="song">贝多芬的悲伤</div>
+  <div class="song">乌兰巴托的夜</div>
+  <div class="song">蒲公英的约定</div>
+  <div class="song">永不失联的爱</div>
+  <div class="song">只对你有感觉</div>
+  <div class="song">第一次爱的人</div>
+  <div class="song">分分钟需要你</div>
+  <div class="song">十万毫升泪水</div>
+  <div class="song">你是我的风景</div>
+  <div class="song">阿拉斯加海湾</div>
+  <div class="song">越长大越孤单</div>
+  <div class="song">去有风的地方</div>
+  <div class="song">柠檬草的味道</div>
+  <div class="song">阳光下的星星</div>
+  <div class="song">假如爱有天意</div>
+  <div class="song">仙女也会落泪</div>
+  <div class="song">星光下的梦想</div>
+  <div class="song">天亮以前说再见</div>
+  <div class="song">我落泪情绪零碎</div>
+  <div class="song">漂洋过海来看你</div>
+  <div class="song">梁山伯与朱丽叶</div>
+  <div class="song">可惜我是水瓶座</div>
+  <div class="song">我要我们在一起</div>
+  <div class="song">这世界那么多人</div>
+  <div class="song">给电影人的情书</div>
+  <div class="song">你就不要想起我</div>
+  <div class="song">不为谁而作的歌</div>
+  <div class="song">听见下雨的声音</div>
+  <div class="song">最熟悉的陌生人</div>
+  <div class="song">第57次取消发送</div>
+  <div class="song">给我一首歌的时间</div>
+  <div class="song">沿海小城的玫瑰月</div>
+  <div class="song">没有人不比我快乐</div>
+  <div class="song">在加纳共和国离婚</div>
+  <div class="song">我好像在哪见过你</div>
+  <div class="song">就让这大雨全都落下</div>
+  <div class="song">下一次爱情来的时候</div>
+  <div class="song">我在人民广场吃炸鸡</div>
+  <div class="song">为什么最迷人的最危险</div>
+
+</div>
+
+    <footer id="about">
+      © 2026 芋泥 
+    </footer>
+
+  </div>
+
+  <script>
+    const audio = document.getElementById('player');
+    const playBtn = document.getElementById('playBtn');
+    const progress = document.getElementById('progress');
+    const currentTimeEl = document.getElementById('currentTime');
+    const durationEl = document.getElementById('duration');
+    const disc = document.getElementById('disc');
+
+    function formatTime(sec){
+      if(isNaN(sec)) return '00:00';
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    }
+
+    audio.addEventListener('loadedmetadata', () => {
+      durationEl.textContent = formatTime(audio.duration);
+    });
+
+    // 尝试打开网页后自动播放；浏览器若拦截，则首次点击页面时播放
+    window.addEventListener('load', () => {
+      audio.play().then(() => {
+        playBtn.textContent = '❚❚';
+        disc.style.animationPlayState = 'running';
+      }).catch(() => {
+        const startOnFirstInteraction = () => {
+          audio.play().then(() => {
+            playBtn.textContent = '❚❚';
+            disc.style.animationPlayState = 'running';
+          }).catch(() => {});
+          document.removeEventListener('click', startOnFirstInteraction);
+          document.removeEventListener('pointerdown', startOnFirstInteraction);
+          document.removeEventListener('keydown', startOnFirstInteraction);
+        };
+        document.addEventListener('click', startOnFirstInteraction, {once:true});
+        document.addEventListener('pointerdown', startOnFirstInteraction, {once:true});
+        document.addEventListener('keydown', startOnFirstInteraction, {once:true});
+      });
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      const percent = (audio.currentTime / audio.duration) * 100;
+      progress.value = percent || 0;
+      currentTimeEl.textContent = formatTime(audio.currentTime);
+    });
+
+    progress.addEventListener('input', () => {
+      audio.currentTime = (progress.value / 100) * audio.duration;
+    });
+
+    function togglePlay(){
+      if(audio.paused){
+        audio.play();
+        playBtn.textContent = '❚❚';
+        disc.style.animationPlayState = 'running';
+      }else{
+        audio.pause();
+        playBtn.textContent = '▶';
+        disc.style.animationPlayState = 'paused';
+      }
+    }
+
+    function rewind(){
+      audio.currentTime = Math.max(0, audio.currentTime - 10);
+    }
+
+    function forward(){
+      audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 10);
+    }
+
+  </script>
+
+</body>
+</html>
